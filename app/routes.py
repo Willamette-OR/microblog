@@ -7,4 +7,9 @@ from app import app
 def index():
     """View function for the index page"""
 
-    return render_template('index.html')
+    title = 'Home'
+    user = 'gg'
+    posts = [{'author': 'gg', 'post': 'I am here in the shadows!'},
+             {'author': 'pp', 'post': 'xixi'}]
+
+    return render_template('index.html', title=title, user=user, posts=posts)

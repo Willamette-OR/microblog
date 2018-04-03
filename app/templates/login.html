@@ -1,27 +1,24 @@
-<html>
-    <head>
-        <title>Microblog-Login</title>
-    </head>
-    <body>
-        <div>
-            <h1>Sign In</h1>
-        </div>
-        <form method="post" action="">
-            {{ form.hidden_tag() }}
-            <p>
-                {{ form.username.label }} <br>
-                {{ form.username(size=32) }}
-            </p>
-            <p>
-                {{ form.password.label }} <br>
-                {{ form.password(size=64) }}
-            </p>
-            <p>
-                {{ form.remember_me() }} {{ form.remember_me.label }}
-            </p>
-            <p>
-                {{ form.submit() }}
-            </p>
-        </form>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <h1>Sign In</h1>
+    </div>
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }} <br>
+            {{ form.username(size=32) }}
+        </p>
+        <p>
+            {{ form.password.label }} <br>
+            {{ form.password(size=64) }}
+        </p>
+        <p>
+            {{ form.remember_me() }} {{ form.remember_me.label }}
+        </p>
+        <p>
+            {{ form.submit() }}
+        </p>
+    </form>
+{% endblock %}

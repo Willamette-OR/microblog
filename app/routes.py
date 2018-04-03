@@ -8,12 +8,11 @@ from app.forms import LoginForm
 def index():
     """View function for the index page"""
 
-    title = 'Home'
     user = 'gg'
     posts = [{'author': 'gg', 'post': 'I am here in the shadows!'},
              {'author': 'pp', 'post': 'xixi'}]
 
-    return render_template('index.html', title=title, user=user, posts=posts)
+    return render_template('index.html', title='Home', user=user, posts=posts)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -25,4 +24,4 @@ def login():
     if form.validate_on_submit():
         return redirect(url_for('index'))
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', title='Login', form=form)

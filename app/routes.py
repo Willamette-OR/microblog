@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from app import app
 from app.forms import LoginForm
+from app.models import User
 
 
 @app.route('/')
@@ -22,8 +23,13 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        flash('Login requested for user {0}, remember_me = {1}'.
-              format(form.username.data, form.remember_me.data))
-        return redirect(url_for('index'))
+        user = User.query.filter_by(username=form.username.data).first()
+
+        if user is not None and user.check_password(form.password.data):
+            flash('You have logged in successfully!')
+            return redirect(url_for('index'))
+
+        flash('Invalid username or password. Please try again.')
+        return redirect(url_for('login'))
 
     return render_template('login.html', title='Login', form=form)

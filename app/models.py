@@ -12,6 +12,9 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    about_me = db.Column(db.String(256))
+    last_seen = db.Column(db.DateTime, default=None)
+
 
     def __repr__(self):
         """String representation for user objects"""

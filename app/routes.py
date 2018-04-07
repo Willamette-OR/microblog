@@ -69,3 +69,16 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html', form=form, title='Register')
+
+
+@app.route('/user_profile/<username>')
+@login_required
+def user_profile(username):
+    """View function to display user profiles"""
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        flash('User {} does not exist.'.format(username))
+        return redirect(url_for('index'))
+
+    return render_template('user_profile.html', user=user, title='Profile')

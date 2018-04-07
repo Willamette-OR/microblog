@@ -1,8 +1,10 @@
 from datetime import datetime
-from app import db
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+from app import db, login
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """A class for user data model"""
 
     id = db.Column(db.Integer, primary_key=True)
@@ -15,6 +17,16 @@ class User(db.Model):
         """String representation for user objects"""
 
         return '<User {}>'.format(self.username)
+
+    def set_password(self, password):
+        """Take the input password, create and save the password hash"""
+
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Take the input password and verify if it's the same as the saved"""
+
+        return check_password_hash(self.password_hash, password)
 
 
 class Post(db.Model):
@@ -29,3 +41,10 @@ class Post(db.Model):
         """String representation for post objects"""
 
         return '<Post {}>'.format(self.body)
+
+
+@login.user_loader
+def load_user(id):
+    """A user loader to be registered the login manager instance"""
+
+    return User.query.get(int(id))

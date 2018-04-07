@@ -1,10 +1,13 @@
 from flask import render_template, redirect, url_for, flash
-from app import app
-from app.forms import LoginForm
+from flask_login import current_user, login_user, logout_user, login_required
+from app import app, db
+from app.forms import LoginForm, RegistrationForm
+from app.models import User
 
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
     """View function for the index page"""
 
@@ -19,11 +22,50 @@ def index():
 def login():
     """View function for the login page"""
 
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
     form = LoginForm()
 
     if form.validate_on_submit():
-        flash('Login requested for user {0}, remember_me = {1}'.
-              format(form.username.data, form.remember_me.data))
-        return redirect(url_for('index'))
+        user = User.query.filter_by(username=form.username.data).first()
+
+        if user is not None and user.check_password(form.password.data):
+            login_user(user)
+            flash('You have logged in successfully!')
+            return redirect(url_for('index'))
+
+        flash('Invalid username or password. Please try again.')
+        return redirect(url_for('login'))
 
     return render_template('login.html', title='Login', form=form)
+
+
+@app.route('/logout')
+def logout():
+    """View function for user logout"""
+
+    if current_user.is_authenticated:
+        logout_user()
+    return redirect(url_for('index'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """View function to register new users"""
+
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    form = RegistrationForm()
+
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+
+        flash('You have registered successfully! Please log in.')
+        return redirect(url_for('login'))
+
+    return render_template('register.html', form=form, title='Register')

@@ -1,5 +1,8 @@
+from datetime import datetime
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user, login_user, logout_user, login_required
+
+
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from app.models import User
@@ -82,3 +85,12 @@ def user_profile(username):
         return redirect(url_for('index'))
 
     return render_template('user_profile.html', user=user, title='Profile')
+
+
+@app.before_request
+def before_request():
+    """Actions to take before each request"""
+
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()

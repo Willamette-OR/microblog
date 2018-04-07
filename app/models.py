@@ -1,9 +1,10 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from flask_login import UserMixin
+from app import db, login
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """A class for user data model"""
 
     id = db.Column(db.Integer, primary_key=True)
@@ -40,3 +41,10 @@ class Post(db.Model):
         """String representation for post objects"""
 
         return '<Post {}>'.format(self.body)
+
+
+@login.user_loader
+def load_user(id):
+    """A user loader to be registered the login manager instance"""
+
+    return User.query.get(int(id))

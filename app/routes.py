@@ -4,21 +4,29 @@ from flask_login import current_user, login_user, logout_user, login_required
 
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm
-from app.models import User
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm
+from app.models import User, Post
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     """View function for the index page"""
 
-    posts = [{'author': 'gg', 'post': 'I am here in the shadows!'},
-             {'author': 'pp', 'post': 'xixi'}]
+    posts = current_user.posts.order_by(Post.timestamp.desc()).all()
+
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+
+        flash('You have successfully submitted a new post!')
+        return redirect(url_for('index'))
 
     return render_template('index.html', title='Home', user=current_user,
-                           posts=posts)
+                           posts=posts, form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])

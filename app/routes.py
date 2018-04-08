@@ -113,6 +113,15 @@ def edit_profile():
     return render_template('edit_profile.html', form=form, title='Edit Profile')
 
 
+@app.route('/explore')
+@login_required
+def explore():
+    """View function to allow logged in users to explore all user posts"""
+
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('explore.html', title='Explore', posts=posts)
+
+
 @app.before_request
 def before_request():
     """Actions to take before each request"""

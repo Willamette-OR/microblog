@@ -49,3 +49,10 @@ class EditProfileForm(FlaskForm):
     about_me = TextAreaField("About Me", validators=[DataRequired(),
                                                      Length(min=1, max=256)])
     submit = SubmitField("Submit")
+
+
+class PostForm(FlaskForm):
+    """A class for making new posts on the index page"""
+
+    post = TextAreaField('Say something', validators=[Length(min=1, max=140)])
+    submit = SubmitField('Submit')

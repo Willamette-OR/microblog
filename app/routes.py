@@ -14,11 +14,11 @@ from app.models import User
 def index():
     """View function for the index page"""
 
-    user = 'gg'
     posts = [{'author': 'gg', 'post': 'I am here in the shadows!'},
              {'author': 'pp', 'post': 'xixi'}]
 
-    return render_template('index.html', title='Home', user=user, posts=posts)
+    return render_template('index.html', title='Home', user=current_user,
+                           posts=posts)
 
 
 @app.route('/login', methods=['GET', 'POST'])

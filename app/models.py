@@ -18,7 +18,6 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(256))
     last_seen = db.Column(db.DateTime, default=None)
 
-
     def __repr__(self):
         """String representation for user objects"""
 

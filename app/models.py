@@ -1,6 +1,9 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from hashlib import md5
 from flask_login import UserMixin
+
+
 from app import db, login
 
 
@@ -30,6 +33,13 @@ class User(UserMixin, db.Model):
         """Take the input password and verify if it's the same as the saved"""
 
         return check_password_hash(self.password_hash, password)
+
+    def avatar(self, size=32):
+        """Create the url for users' avatar images"""
+
+        hex_d = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return 'https://www.gravatar.com/avatar/{0}?d=mm&s={1}'.format(hex_d,
+                                                                       size)
 
 
 class Post(db.Model):

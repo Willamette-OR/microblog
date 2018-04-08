@@ -21,7 +21,19 @@
     </div>
     <div>
         {% for post in posts %}
-            <p>{{ post.author.username }} says: {{ post.body }}</p>
+            <table valign="top">
+                <tr>
+                    <td>
+                        <img src="{{ user.avatar(32) }}">
+                    </td>
+                    <td>
+                        <p>
+                            {{ post.author.username }} says: <br>
+                            {{ post.body }}
+                        </p>
+                    </td>
+                </tr>
+            </table>
         {% endfor %}
     </div>
 {% endblock %}

@@ -16,5 +16,8 @@
     <p>
         User is last seen on {{ user.last_seen }}
     </p>
+    <p>
+        <a href="{{ url_for('edit_profile') }}">Edit Profile</a>
+    </p>
     {% endif %}
 {% endblock %}

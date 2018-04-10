@@ -2,11 +2,26 @@
 
 {% block content %}
     <div>
-        <h1>Hello {{ user }}!</h1>
+        <h1>Hello {{ user.username }}!</h1>
+    </div>
+    <div>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.post.label }} <br>
+                {{ form.post(rows=3, cols=50) }} <br>
+                {% for error in form.post.errors %}
+                    <span style="color:red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.submit() }}
+            </p>
+        </form>
     </div>
     <div>
         {% for post in posts %}
-            <p>{{ post.author }} says: {{ post.post }}</p>
+            {% include '_post.html' %}
         {% endfor %}
     </div>
 {% endblock %}

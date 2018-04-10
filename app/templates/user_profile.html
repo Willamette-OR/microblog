@@ -26,4 +26,11 @@
             </td>
         </tr>
     </table>
+    <br>
+    <br>
+    <div>
+        {% for post in user.posts %}
+            {% include '_post.html' %}
+        {% endfor %}
+    </div>
 {% endblock %}

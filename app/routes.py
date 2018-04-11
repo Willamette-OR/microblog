@@ -100,7 +100,7 @@ def user_profile(username):
 def edit_profile():
     """View function to edit user profiles"""
 
-    form = EditProfileForm()
+    form = EditProfileForm(current_user)
 
     if form.validate_on_submit():
         current_user.username = form.username.data

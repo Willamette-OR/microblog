@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 
 
@@ -109,6 +109,9 @@ def edit_profile():
 
         flash('Your profile has been updated successfully!')
         return redirect(url_for('user_profile', username=current_user.username))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.about_me.data = current_user.about_me
 
     return render_template('edit_profile.html', form=form, title='Edit Profile')
 

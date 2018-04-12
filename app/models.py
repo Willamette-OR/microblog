@@ -7,6 +7,13 @@ from flask_login import UserMixin
 from app import db, login
 
 
+follower = db.Table('follower',
+                    db.Column('followed_id', db.Integer,
+                              db.ForeignKey('user.id')),
+                    db.Column('followers_id', db.Integer,
+                              db.ForeignKey('user.id')))
+
+
 class User(UserMixin, db.Model):
     """A class for user data model"""
 
@@ -17,6 +24,11 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(256))
     last_seen = db.Column(db.DateTime, default=None)
+    followed = db.relationship('User', secondary=follower,
+                               primaryjoin=(id == follower.c.followers_id),
+                               secondaryjoin=(id == follower.c.followed_id),
+                               backref=db.backref('followers', lazy='dynamic'),
+                               lazy='dynamic')
 
     def __repr__(self):
         """String representation for user objects"""
@@ -39,6 +51,34 @@ class User(UserMixin, db.Model):
         hex_d = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{0}?d=mm&s={1}'.format(hex_d,
                                                                        size)
+
+    def is_following(self, user):
+        """Tell if self is following a given user"""
+
+        return self.followed.filter_by(username=user.username).count() > 0
+
+    def follow(self, user):
+        """Follow a user if not already following"""
+
+        if not self.is_following(user) and self.id != user.id:
+            self.followed.append(user)
+
+    def unfollow(self, user):
+        """Unfollow a user if is currently following"""
+
+        if self.is_following(user) and self.id != user.id:
+            self.followed.remove(user)
+
+    def followed_posts(self):
+        """Return a query object with all followed users' posts and self's own
+        posts"""
+
+        followed = Post.query.join(
+            follower, (Post.user_id == follower.c.followed_id)).filter(
+                follower.c.followers_id == self.id)
+        own = self.posts
+
+        return followed.union(own).order_by(Post.timestamp.desc())
 
 
 class Post(db.Model):

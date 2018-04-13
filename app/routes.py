@@ -14,7 +14,7 @@ from app.models import User, Post
 def index():
     """View function for the index page"""
 
-    posts = current_user.posts.order_by(Post.timestamp.desc()).all()
+    posts = current_user.followed_posts().all()
 
     form = PostForm()
     if form.validate_on_submit():

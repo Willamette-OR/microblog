@@ -14,7 +14,11 @@ from app.models import User, Post
 def index():
     """View function for the index page"""
 
-    posts = current_user.followed_posts().all()
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().\
+        paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) if posts.has_prev else None
 
     form = PostForm()
     if form.validate_on_submit():
@@ -26,7 +30,8 @@ def index():
         return redirect(url_for('index'))
 
     return render_template('index.html', title='Home', user=current_user,
-                           posts=posts, form=form)
+                           posts=posts.items, form=form, next_url=next_url,
+                           prev_url=prev_url)
 
 
 @app.route('/login', methods=['GET', 'POST'])

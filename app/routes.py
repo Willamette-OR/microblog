@@ -14,7 +14,7 @@ from app.models import User, Post
 def index():
     """View function for the index page"""
 
-    posts = current_user.posts.order_by(Post.timestamp.desc()).all()
+    posts = current_user.followed_posts().all()
 
     form = PostForm()
     if form.validate_on_submit():
@@ -123,6 +123,38 @@ def explore():
 
     posts = Post.query.order_by(Post.timestamp.desc()).all()
     return render_template('explore.html', title='Explore', posts=posts)
+
+
+@app.route('/follow/<username>')
+@login_required
+def follow(username):
+    """View function to handle requests to follow a different user"""
+
+    if username == current_user.username:
+        flash('You cannot follow yourself!')
+        return redirect(url_for('index'))
+
+    user = User.query.filter_by(username=username).first()
+    current_user.follow(user)
+    db.session.commit()
+    flash('You are now following {}!'.format(username))
+    return redirect(url_for('user_profile', username=username))
+
+
+@app.route('/unfollow/<username>')
+@login_required
+def unfollow(username):
+    """View function to handle requests to unfollow a different user"""
+
+    if username == current_user.username:
+        flash('You cannot unfollow yourself!')
+        return redirect(url_for('index'))
+
+    user = User.query.filter_by(username=username).first()
+    current_user.unfollow(user)
+    db.session.commit()
+    flash('You are no longer following {}!'.format(username))
+    return redirect(url_for('user_profile', username=username))
 
 
 @app.before_request

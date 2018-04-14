@@ -4,6 +4,7 @@
     <div>
         <h1>Hello {{ user.username }}!</h1>
     </div>
+    {% if form %}
     <div>
         <form action="" method="post">
             {{ form.hidden_tag() }}
@@ -19,6 +20,7 @@
             </p>
         </form>
     </div>
+    {% endif %}
     <div>
         {% for post in posts %}
             {% include '_post.html' %}

@@ -34,6 +34,16 @@ def index():
                            prev_url=prev_url)
 
 
+@app.route('/explore')
+@login_required
+def explore():
+    """View function to allow logged in users to explore all user posts"""
+
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html', title='Explore', user=current_user,
+                           posts=posts)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """View function for the login page"""
@@ -119,15 +129,6 @@ def edit_profile():
         form.about_me.data = current_user.about_me
 
     return render_template('edit_profile.html', form=form, title='Edit Profile')
-
-
-@app.route('/explore')
-@login_required
-def explore():
-    """View function to allow logged in users to explore all user posts"""
-
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('explore.html', title='Explore', posts=posts)
 
 
 @app.route('/follow/<username>')

@@ -4,7 +4,8 @@ from flask_login import current_user, login_user, logout_user, login_required
 
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
+    RequestPasswordResetForm
 from app.models import User, Post
 
 
@@ -179,6 +180,23 @@ def unfollow(username):
     db.session.commit()
     flash('You are no longer following {}!'.format(username))
     return redirect(url_for('user_profile', username=username))
+
+
+@app.route('/request_password_reset', methods=['GET', 'POST'])
+def request_password_reset():
+    """View function for user password reset requests"""
+
+    form =  RequestPasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            flash('Ready to send email to {} at {}!'.format(user.username,
+                                                            user.email))
+        flash('Please check your email for a link to reset your password!')
+        return redirect(url_for('login'))
+
+    return render_template('request_password_reset.html', form=form,
+                           title='Request Password Reset')
 
 
 @app.before_request

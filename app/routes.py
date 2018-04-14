@@ -14,7 +14,11 @@ from app.models import User, Post
 def index():
     """View function for the index page"""
 
-    posts = current_user.followed_posts().all()
+    page = request.args.get('page', 1, type=int)
+    posts = current_user.followed_posts().\
+        paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('index', page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('index', page=posts.prev_num) if posts.has_prev else None
 
     form = PostForm()
     if form.validate_on_submit():
@@ -26,7 +30,26 @@ def index():
         return redirect(url_for('index'))
 
     return render_template('index.html', title='Home', user=current_user,
-                           posts=posts, form=form)
+                           posts=posts.items, form=form, next_url=next_url,
+                           prev_url=prev_url)
+
+
+@app.route('/explore')
+@login_required
+def explore():
+    """View function to allow logged in users to explore all user posts"""
+
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.timestamp.desc()).\
+        paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('explore', page=posts.next_num) if posts.has_next \
+        else None
+    prev_url = url_for('explore', page=posts.prev_num) if posts.has_prev \
+        else None
+
+    return render_template('index.html', title='Explore', user=current_user,
+                           posts=posts.items, next_url=next_url,
+                           prev_url=prev_url)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -92,7 +115,17 @@ def user_profile(username):
         flash('User {} does not exist.'.format(username))
         return redirect(url_for('index'))
 
-    return render_template('user_profile.html', user=user, title='Profile')
+    page = request.args.get('page', 1, type=int)
+    posts = user.posts.order_by(Post.timestamp.desc()).\
+        paginate(page, app.config['POSTS_PER_PAGE'], False)
+    next_url = url_for('user_profile', username=user.username,
+                       page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('user_profile', username=user.username,
+                       page=posts.prev_num) if posts.has_prev else None
+
+    return render_template('user_profile.html', user=user, title='Profile',
+                           posts=posts.items, next_url=next_url,
+                           prev_url=prev_url)
 
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
@@ -114,15 +147,6 @@ def edit_profile():
         form.about_me.data = current_user.about_me
 
     return render_template('edit_profile.html', form=form, title='Edit Profile')
-
-
-@app.route('/explore')
-@login_required
-def explore():
-    """View function to allow logged in users to explore all user posts"""
-
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('explore.html', title='Explore', posts=posts)
 
 
 @app.route('/follow/<username>')

@@ -7,6 +7,7 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     RequestPasswordResetForm
 from app.models import User, Post
+from app.email import send_password_reset_email
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -186,12 +187,12 @@ def unfollow(username):
 def request_password_reset():
     """View function for user password reset requests"""
 
-    form =  RequestPasswordResetForm()
+    form = RequestPasswordResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            flash('Ready to send email to {} at {}!'.format(user.username,
-                                                            user.email))
+            send_password_reset_email(user, recipients=[user.email],
+                                      sender=app.config['ADMINS'][0])
         flash('Please check your email for a link to reset your password!')
         return redirect(url_for('login'))
 

@@ -5,7 +5,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    RequestPasswordResetForm
+    RequestPasswordResetForm, PasswordResetForm
 from app.models import User, Post
 from app.email import send_password_reset_email
 
@@ -198,6 +198,27 @@ def request_password_reset():
 
     return render_template('request_password_reset.html', form=form,
                            title='Request Password Reset')
+
+
+@app.route('/password_reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    """View function to reset user passwords if the token is valid"""
+
+    user = User.verify_password_reset_token(token)
+    if not user:
+        flash('Invalid link for password reset. '
+              'Please double check your email and try again.')
+        return redirect(url_for('login'))
+
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been successfully reset. Please log in.')
+        return redirect(url_for('login'))
+
+    return render_template('password_reset.html', form=form,
+                           title='Reset Password')
 
 
 @app.before_request

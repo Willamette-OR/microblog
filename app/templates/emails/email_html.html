@@ -1,0 +1,9 @@
+<p>Dear {{ user.username }}:</p>
+<p>To reset your password, </p>
+<p>
+    <a href="{{ url_for('password_reset', token=token, _external=True) }}">
+        Click Here.
+    </a>
+</p>
+<p>Your sincerely,</p>
+<p>Microblog Team</p>

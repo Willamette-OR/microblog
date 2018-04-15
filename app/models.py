@@ -1,4 +1,5 @@
 from datetime import datetime
+from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 import jwt
@@ -84,16 +85,20 @@ class User(UserMixin, db.Model):
     def create_password_reset_token(self, expire=600):
         """Create a token for resetting user passwords"""
 
-        return jwt.encode({'user_id': self.id, 'exp': expire},
+        return jwt.encode({'user_id': self.id, 'exp': time() + expire},
                           key=app.config['SECRET_KEY'], algorithm='HS256')
 
-    def verify_password_reset_token(self, token):
+    @staticmethod
+    def verify_password_reset_token(token):
         """Verify a token and returns the user id if token is good"""
 
         try:
-            return jwt.decode(token, algorithms='HS256')['user_id']
+            user_id = jwt.decode(token, key=app.config['SECRET_KEY'],
+                                 algorithms='HS256')['user_id']
         except:
-            return None
+            return
+
+        return User.query.get(int(user_id))
 
 
 class Post(db.Model):

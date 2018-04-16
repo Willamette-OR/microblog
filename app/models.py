@@ -86,7 +86,8 @@ class User(UserMixin, db.Model):
         """Create a token for resetting user passwords"""
 
         return jwt.encode({'user_id': self.id, 'exp': time() + expire},
-                          key=app.config['SECRET_KEY'], algorithm='HS256')
+                          key=app.config['SECRET_KEY'],
+                          algorithm='HS256').decode('utf-8')
 
     @staticmethod
     def verify_password_reset_token(token):

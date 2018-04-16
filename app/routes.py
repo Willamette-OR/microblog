@@ -4,8 +4,10 @@ from flask_login import current_user, login_user, logout_user, login_required
 
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
+    RequestPasswordResetForm, PasswordResetForm
 from app.models import User, Post
+from app.email import send_password_reset_email
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -179,6 +181,44 @@ def unfollow(username):
     db.session.commit()
     flash('You are no longer following {}!'.format(username))
     return redirect(url_for('user_profile', username=username))
+
+
+@app.route('/request_password_reset', methods=['GET', 'POST'])
+def request_password_reset():
+    """View function for user password reset requests"""
+
+    form = RequestPasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user, recipients=[user.email],
+                                      sender=app.config['ADMINS'][0])
+        flash('Please check your email for a link to reset your password!')
+        return redirect(url_for('login'))
+
+    return render_template('request_password_reset.html', form=form,
+                           title='Request Password Reset')
+
+
+@app.route('/password_reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    """View function to reset user passwords if the token is valid"""
+
+    user = User.verify_password_reset_token(token)
+    if not user:
+        flash('Invalid link for password reset. '
+              'Please double check your email and try again.')
+        return redirect(url_for('login'))
+
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been successfully reset. Please log in.')
+        return redirect(url_for('login'))
+
+    return render_template('password_reset.html', form=form,
+                           title='Reset Password')
 
 
 @app.before_request

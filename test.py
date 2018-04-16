@@ -82,6 +82,17 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(u3.followed_posts().all(), [p4, p1])
         self.assertEqual(u4.followed_posts().all(), [p3])
 
+    def test_password_reset_token(self):
+        """Test the password reset token mechanics"""
+
+        user = User(username='susan')
+        db.session.add(user)
+        db.session.commit()
+
+        token = user.create_password_reset_token()
+        self.assertFalse(User.verify_password_reset_token('gibberish'))
+        self.assertTrue(User.verify_password_reset_token(token))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

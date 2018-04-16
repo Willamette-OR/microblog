@@ -29,6 +29,12 @@
     </form>
     <div>
         <p>
+            Forgot your password?
+            <a href="{{ url_for('request_password_reset') }}">
+                Click here to reset!
+            </a>
+        </p>
+        <p>
             Not registered yet?
             <a href="{{ url_for('register') }}">Click to register</a>!
         </p>

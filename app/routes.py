@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_babel import _
 
 
 from app import app, db
@@ -28,7 +29,7 @@ def index():
         db.session.add(post)
         db.session.commit()
 
-        flash('You have successfully submitted a new post!')
+        flash(_('You have successfully submitted a new post!'))
         return redirect(url_for('index'))
 
     return render_template('index.html', title='Home', user=current_user,

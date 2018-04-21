@@ -72,5 +72,4 @@ if not app.debug:
 def get_locale():
     """A locale selector to be registered with the babel object"""
 
-    #return request.accept_languages.best_match(app.config['LANGUAGES'])
-    return 'zh'
+    return request.accept_languages.best_match(app.config['LANGUAGES'])

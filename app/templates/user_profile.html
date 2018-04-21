@@ -15,8 +15,8 @@
                 {% endif %}
                 {% if user.last_seen %}
                 <p>
-                    User is last seen on
-                    {{ moment(user.last_seen).calendar() }}
+                    {{ _('User is last seen on:') }}
+                    {{ moment(user.last_seen).format('LLL') }}
                 </p>
                 {% endif %}
                 <p>

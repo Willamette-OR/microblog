@@ -1,6 +1,7 @@
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, g
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_babel import _, get_locale
 
 
 from app import app, db
@@ -28,10 +29,10 @@ def index():
         db.session.add(post)
         db.session.commit()
 
-        flash('You have successfully submitted a new post!')
+        flash(_('You have successfully submitted a new post!'))
         return redirect(url_for('index'))
 
-    return render_template('index.html', title='Home', user=current_user,
+    return render_template('index.html', title=_('Home'), user=current_user,
                            posts=posts.items, form=form, next_url=next_url,
                            prev_url=prev_url)
 
@@ -228,3 +229,6 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
+    # Register flask babel locale with flask g?
+    g.locale = str(get_locale())

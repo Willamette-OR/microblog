@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-04-20 20:46-0400\n"
+"POT-Creation-Date: 2018-04-20 21:13-0400\n"
 "PO-Revision-Date: 2018-04-18 20:58-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -34,4 +34,14 @@ msgstr "更新的帖子"
 #: app/templates/index.html:24
 msgid "Older Posts"
 msgstr "更早的帖子"
+
+#: app/templates/user_profile.html:18
+msgid "User is last seen on:"
+msgstr "该用户上次在线时间:"
+
+#~ msgid "该用户上次在线时间： %(timestamp)s"
+#~ msgstr ""
+
+#~ msgid "该用户上次在线时间:"
+#~ msgstr ""
 

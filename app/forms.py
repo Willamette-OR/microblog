@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, \
     ValidationError
+from flask_babel import lazy_gettext as _l
 
 
 from app.models import User
@@ -69,8 +70,9 @@ class EditProfileForm(FlaskForm):
 class PostForm(FlaskForm):
     """A class for making new posts on the index page"""
 
-    post = TextAreaField('Say something', validators=[Length(min=1, max=140)])
-    submit = SubmitField('Submit')
+    post = TextAreaField(_l('Say something'), validators=[Length(min=1,
+                                                                 max=140)])
+    submit = SubmitField(_l('Submit'))
 
 
 class RequestPasswordResetForm(FlaskForm):

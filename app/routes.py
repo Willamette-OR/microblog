@@ -32,7 +32,7 @@ def index():
         flash(_('You have successfully submitted a new post!'))
         return redirect(url_for('index'))
 
-    return render_template('index.html', title='Home', user=current_user,
+    return render_template('index.html', title=_('Home'), user=current_user,
                            posts=posts.items, form=form, next_url=next_url,
                            prev_url=prev_url)
 

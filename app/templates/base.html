@@ -72,7 +72,8 @@
     <script>
         function translate(source_element, dest_element, source_lang,
             dest_lang) {
-            $(dest_element).text('loading');
+            $(dest_element).html('<img src="{{ url_for('static',
+                filename='loading.gif') }}">');
             $.post('/translate', {
                 text: $(source_element).text(),
                 source_lang: source_lang,

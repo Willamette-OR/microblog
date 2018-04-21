@@ -1,7 +1,7 @@
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, g
 from flask_login import current_user, login_user, logout_user, login_required
-from flask_babel import _
+from flask_babel import _, get_locale
 
 
 from app import app, db
@@ -229,3 +229,6 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
+
+    # Register flask babel locale with flask g?
+    g.locale = str(get_locale())

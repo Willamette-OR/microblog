@@ -1,5 +1,6 @@
 from datetime import datetime
-from flask import render_template, redirect, url_for, flash, request, g
+from guess_language import guess_language
+from flask import render_template, redirect, url_for, flash, request, g, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_babel import _, get_locale
 
@@ -9,6 +10,7 @@ from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
     RequestPasswordResetForm, PasswordResetForm
 from app.models import User, Post
 from app.email import send_password_reset_email
+from app.translate import translation
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -25,7 +27,10 @@ def index():
 
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
+        language = guess_language(form.post.data)
+        if language == 'UNKNOWN' or len(language) > 5:
+            language = ''
+        post = Post(body=form.post.data, author=current_user, language=language)
         db.session.add(post)
         db.session.commit()
 
@@ -220,6 +225,17 @@ def password_reset(token):
 
     return render_template('password_reset.html', form=form,
                            title='Reset Password')
+
+
+@app.route('/translate', methods=['POST'])
+@login_required
+def translate():
+    """Post-only view function to translate texts and return translated texts
+    in json"""
+
+    return jsonify({'text': translation(request.form['text'],
+                                        request.form['source_lang'],
+                                        request.form['dest_lang'])})
 
 
 @app.before_request

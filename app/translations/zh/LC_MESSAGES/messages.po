@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-04-20 21:13-0400\n"
+"POT-Creation-Date: 2018-04-21 11:24-0400\n"
 "PO-Revision-Date: 2018-04-18 20:58-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh\n"
@@ -18,9 +18,50 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.5.3\n"
 
+#: app/forms.py:73
+msgid "Say something"
+msgstr "说些什么吧："
+
+#: app/forms.py:75
+msgid "Submit"
+msgstr "分享"
+
 #: app/routes.py:32
 msgid "You have successfully submitted a new post!"
 msgstr "你的帖子已经提交成功！"
+
+#: app/routes.py:35 app/templates/base.html:33
+msgid "Home"
+msgstr "首页"
+
+#: app/templates/_post.html:17
+#, python-format
+msgid "%(username)s said %(when)s:"
+msgstr "%(username)s 在 %(when)s 说到:"
+
+#: app/templates/base.html:5 app/templates/base.html:25
+msgid "Microblog"
+msgstr "丐帮大会"
+
+#: app/templates/base.html:7
+msgid "Welcome to Microblog"
+msgstr "欢迎来到丐帮大会"
+
+#: app/templates/base.html:38
+msgid "Explore"
+msgstr "探索"
+
+#: app/templates/base.html:46
+msgid "Login"
+msgstr "登录"
+
+#: app/templates/base.html:53
+msgid "Profile"
+msgstr "用户资料"
+
+#: app/templates/base.html:58
+msgid "Logout"
+msgstr "登出"
 
 #: app/templates/index.html:5
 #, python-format

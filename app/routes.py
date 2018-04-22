@@ -1,15 +1,13 @@
 from datetime import datetime
 from guess_language import guess_language
 from flask import render_template, redirect, url_for, flash, request, g, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
+from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
-    RequestPasswordResetForm, PasswordResetForm
+from app.forms import EditProfileForm, PostForm
 from app.models import User, Post
-from app.email import send_password_reset_email
 from app.translate import translation
 
 
@@ -58,59 +56,6 @@ def explore():
     return render_template('index.html', title='Explore', user=current_user,
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """View function for the login page"""
-
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-
-        if user is not None and user.check_password(form.password.data):
-            login_user(user)
-            flash('You have logged in successfully!')
-            return redirect(url_for('index'))
-
-        flash('Invalid username or password. Please try again.')
-        return redirect(url_for('login'))
-
-    return render_template('login.html', title='Login', form=form)
-
-
-@app.route('/logout')
-def logout():
-    """View function for user logout"""
-
-    if current_user.is_authenticated:
-        logout_user()
-    return redirect(url_for('index'))
-
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    """View function to register new users"""
-
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    form = RegistrationForm()
-
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-
-        flash('You have registered successfully! Please log in.')
-        return redirect(url_for('login'))
-
-    return render_template('register.html', form=form, title='Register')
 
 
 @app.route('/user_profile/<username>')
@@ -187,44 +132,6 @@ def unfollow(username):
     db.session.commit()
     flash('You are no longer following {}!'.format(username))
     return redirect(url_for('user_profile', username=username))
-
-
-@app.route('/request_password_reset', methods=['GET', 'POST'])
-def request_password_reset():
-    """View function for user password reset requests"""
-
-    form = RequestPasswordResetForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            send_password_reset_email(user, recipients=[user.email],
-                                      sender=app.config['ADMINS'][0])
-        flash('Please check your email for a link to reset your password!')
-        return redirect(url_for('login'))
-
-    return render_template('request_password_reset.html', form=form,
-                           title='Request Password Reset')
-
-
-@app.route('/password_reset/<token>', methods=['GET', 'POST'])
-def password_reset(token):
-    """View function to reset user passwords if the token is valid"""
-
-    user = User.verify_password_reset_token(token)
-    if not user:
-        flash('Invalid link for password reset. '
-              'Please double check your email and try again.')
-        return redirect(url_for('login'))
-
-    form = PasswordResetForm()
-    if form.validate_on_submit():
-        user.set_password(form.password.data)
-        db.session.commit()
-        flash('Your password has been successfully reset. Please log in.')
-        return redirect(url_for('login'))
-
-    return render_template('password_reset.html', form=form,
-                           title='Reset Password')
 
 
 @app.route('/translate', methods=['POST'])

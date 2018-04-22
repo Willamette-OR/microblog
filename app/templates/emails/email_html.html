@@ -1,6 +1,6 @@
 <p>Dear {{ user.username }}:</p>
 <p>To reset your password,
-    <a href="{{ url_for('password_reset', token=token, _external=True) }}">
+    <a href="{{ url_for('auth.password_reset', token=token, _external=True) }}">
         click Here
     </a>.
 </p>
@@ -8,7 +8,7 @@
     Alternatively, you can paste the following link in your browser's address
     bar:
 </p>
-<p>{{ url_for('password_reset', token=token, _external=True) }}</p>
+<p>{{ url_for('auth.password_reset', token=token, _external=True) }}</p>
 <p>If you have not requested a password reset simply igore this message.</p>
 <p>Your sincerely,</p>
 <p>The Microblog Team</p>

@@ -28,7 +28,12 @@ moment = Moment(app)
 babel = Babel(app)
 
 
-from app import routes, models, errors
+# Register blueprints
+from app.errors import bp as bp_errors
+app.register_blueprint(bp_errors)
+
+
+from app import routes, models
 
 
 if not app.debug:

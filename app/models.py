@@ -3,10 +3,11 @@ from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 import jwt
+from flask import current_app
 from flask_login import UserMixin
 
 
-from app import app, db, login
+from app import db, login
 
 
 follower = db.Table('follower',
@@ -86,7 +87,7 @@ class User(UserMixin, db.Model):
         """Create a token for resetting user passwords"""
 
         return jwt.encode({'user_id': self.id, 'exp': time() + expire},
-                          key=app.config['SECRET_KEY'],
+                          key=current_app.config['SECRET_KEY'],
                           algorithm='HS256').decode('utf-8')
 
     @staticmethod
@@ -94,7 +95,7 @@ class User(UserMixin, db.Model):
         """Verify a token and returns the user id if token is good"""
 
         try:
-            user_id = jwt.decode(token, key=app.config['SECRET_KEY'],
+            user_id = jwt.decode(token, key=current_app.config['SECRET_KEY'],
                                  algorithms='HS256')['user_id']
         except:
             return

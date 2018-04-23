@@ -1,8 +1,8 @@
-from flask import render_template, redirect, flash, url_for
+from flask import render_template, redirect, flash, url_for, current_app
 from flask_login import current_user, login_user, logout_user
 
 
-from app import app, db
+from app import db
 from app.models import User
 from app.auth import bp
 from app.auth.forms import LoginForm, RegistrationForm, \
@@ -72,7 +72,7 @@ def request_password_reset():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user, recipients=[user.email],
-                                      sender=app.config['ADMINS'][0])
+                                      sender=current_app.config['ADMINS'][0])
         flash('Please check your email for a link to reset your password!')
         return redirect(url_for('auth.login'))
 

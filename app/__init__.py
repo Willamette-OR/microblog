@@ -31,11 +31,15 @@ babel = Babel(app)
 # Register blueprints
 from app.errors import bp as bp_errors
 app.register_blueprint(bp_errors)
+
 from app.auth import bp as bp_auth
 app.register_blueprint(bp_auth, url_prefix='/auth')
 
+from app.main import bp as bp_main
+app.register_blueprint(bp_main)
 
-from app import routes, models
+
+from app import models
 
 
 if not app.debug:

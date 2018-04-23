@@ -6,13 +6,14 @@ from flask_babel import _, get_locale
 
 
 from app import app, db
-from app.forms import EditProfileForm, PostForm
 from app.models import User, Post
 from app.translate import translation
+from app.main import bp
+from app.main.forms import EditProfileForm, PostForm
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
+@bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     """View function for the index page"""
@@ -20,8 +21,10 @@ def index():
     page = request.args.get('page', 1, type=int)
     posts = current_user.followed_posts().\
         paginate(page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('index', page=posts.next_num) if posts.has_next else None
-    prev_url = url_for('index', page=posts.prev_num) if posts.has_prev else None
+    next_url = url_for('main.index', page=posts.next_num) \
+        if posts.has_next else None
+    prev_url = url_for('main.index', page=posts.prev_num) \
+        if posts.has_prev else None
 
     form = PostForm()
     if form.validate_on_submit():
@@ -33,14 +36,14 @@ def index():
         db.session.commit()
 
         flash(_('You have successfully submitted a new post!'))
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     return render_template('index.html', title=_('Home'), user=current_user,
                            posts=posts.items, form=form, next_url=next_url,
                            prev_url=prev_url)
 
 
-@app.route('/explore')
+@bp.route('/explore')
 @login_required
 def explore():
     """View function to allow logged in users to explore all user posts"""
@@ -48,9 +51,9 @@ def explore():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.timestamp.desc()).\
         paginate(page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('explore', page=posts.next_num) if posts.has_next \
+    next_url = url_for('main.explore', page=posts.next_num) if posts.has_next \
         else None
-    prev_url = url_for('explore', page=posts.prev_num) if posts.has_prev \
+    prev_url = url_for('main.explore', page=posts.prev_num) if posts.has_prev \
         else None
 
     return render_template('index.html', title='Explore', user=current_user,
@@ -58,7 +61,7 @@ def explore():
                            prev_url=prev_url)
 
 
-@app.route('/user_profile/<username>')
+@bp.route('/user_profile/<username>')
 @login_required
 def user_profile(username):
     """View function to display user profiles"""
@@ -66,14 +69,14 @@ def user_profile(username):
     user = User.query.filter_by(username=username).first()
     if not user:
         flash('User {} does not exist.'.format(username))
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     page = request.args.get('page', 1, type=int)
     posts = user.posts.order_by(Post.timestamp.desc()).\
         paginate(page, app.config['POSTS_PER_PAGE'], False)
-    next_url = url_for('user_profile', username=user.username,
+    next_url = url_for('main.user_profile', username=user.username,
                        page=posts.next_num) if posts.has_next else None
-    prev_url = url_for('user_profile', username=user.username,
+    prev_url = url_for('main.user_profile', username=user.username,
                        page=posts.prev_num) if posts.has_prev else None
 
     return render_template('user_profile.html', user=user, title='Profile',
@@ -81,7 +84,7 @@ def user_profile(username):
                            prev_url=prev_url)
 
 
-@app.route('/edit_profile', methods=['GET', 'POST'])
+@bp.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     """View function to edit user profiles"""
@@ -94,7 +97,8 @@ def edit_profile():
         db.session.commit()
 
         flash('Your profile has been updated successfully!')
-        return redirect(url_for('user_profile', username=current_user.username))
+        return redirect(url_for('main.user_profile',
+                                username=current_user.username))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
@@ -102,39 +106,39 @@ def edit_profile():
     return render_template('edit_profile.html', form=form, title='Edit Profile')
 
 
-@app.route('/follow/<username>')
+@bp.route('/follow/<username>')
 @login_required
 def follow(username):
     """View function to handle requests to follow a different user"""
 
     if username == current_user.username:
         flash('You cannot follow yourself!')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     user = User.query.filter_by(username=username).first()
     current_user.follow(user)
     db.session.commit()
     flash('You are now following {}!'.format(username))
-    return redirect(url_for('user_profile', username=username))
+    return redirect(url_for('main.user_profile', username=username))
 
 
-@app.route('/unfollow/<username>')
+@bp.route('/unfollow/<username>')
 @login_required
 def unfollow(username):
     """View function to handle requests to unfollow a different user"""
 
     if username == current_user.username:
         flash('You cannot unfollow yourself!')
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     user = User.query.filter_by(username=username).first()
     current_user.unfollow(user)
     db.session.commit()
     flash('You are no longer following {}!'.format(username))
-    return redirect(url_for('user_profile', username=username))
+    return redirect(url_for('main.user_profile', username=username))
 
 
-@app.route('/translate', methods=['POST'])
+@bp.route('/translate', methods=['POST'])
 @login_required
 def translate():
     """Post-only view function to translate texts and return translated texts
@@ -145,7 +149,7 @@ def translate():
                                         request.form['dest_lang'])})
 
 
-@app.before_request
+@bp.before_request
 def before_request():
     """Actions to take before each request"""
 

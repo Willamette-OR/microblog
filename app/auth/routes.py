@@ -15,7 +15,7 @@ def login():
     """View function for the login page"""
 
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     form = LoginForm()
 
@@ -25,7 +25,7 @@ def login():
         if user is not None and user.check_password(form.password.data):
             login_user(user)
             flash('You have logged in successfully!')
-            return redirect(url_for('index'))
+            return redirect(url_for('main.index'))
 
         flash('Invalid username or password. Please try again.')
         return redirect(url_for('auth.login'))
@@ -39,7 +39,7 @@ def logout():
 
     if current_user.is_authenticated:
         logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -47,7 +47,7 @@ def register():
     """View function to register new users"""
 
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('main.index'))
 
     form = RegistrationForm()
 

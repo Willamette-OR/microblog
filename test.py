@@ -2,8 +2,16 @@ import unittest
 from datetime import datetime, timedelta
 
 
-from app import app, db
+from config import Config
+from app import db, create_app
 from app.models import User, Post
+
+
+class TestConfig(Config):
+    """A derived config class for testing purposes"""
+
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 
 class UserModelCase(unittest.TestCase):
@@ -12,7 +20,9 @@ class UserModelCase(unittest.TestCase):
     def setUp(self):
         """Set up unit tests"""
 
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        self.app = create_app(TestConfig)
+        self.app_context = self.app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
@@ -20,6 +30,7 @@ class UserModelCase(unittest.TestCase):
 
         db.session.remove()
         db.drop_all()
+        self.app_context.pop()
 
     def test_password_hash(self):
         """Test user model's password methods"""

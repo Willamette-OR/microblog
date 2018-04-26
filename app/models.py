@@ -8,6 +8,7 @@ from flask_login import UserMixin
 
 
 from app import db, login
+from app.search import add_to_index, remove_from_index, query_index
 
 
 follower = db.Table('follower',
@@ -103,8 +104,58 @@ class User(UserMixin, db.Model):
         return User.query.get(int(user_id))
 
 
-class Post(db.Model):
+class SearchMixin(object):
+    """A super class for Post with methods to sync between the SQLAlchemy
+    database and the search engine database"""
+
+    @classmethod
+    def search(cls, expression, page, per_page):
+        """Search expression and return objects"""
+
+        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        if total == 0:
+            return cls.query.filter_by(id=0), 0
+        when = []
+        for i in range(len(ids)):
+            when.append((ids[i], i))
+        return cls.query.filter(cls.id.in_(ids)).order_by(
+            db.case(when, value=cls.id)), total
+
+    @classmethod
+    def before_commit(cls, session):
+        """Save changed objects to the session"""
+
+        session._changes = {
+            'add': [obj for obj in session.new if isinstance(obj, cls)],
+            'update': [obj for obj in session.dirty if isinstance(obj, cls)],
+            'delete': [obj for obj in session.deleted if isinstance(obj, cls)]
+        }
+
+    @classmethod
+    def after_commit(cls, session):
+        """Update the search engine database after committing changes to the
+        SQLAlchemy database"""
+
+        for obj in session._changes['add']:
+            add_to_index(cls.__tablename__, obj)
+        for obj in session._changes['update']:
+            add_to_index(cls.__tablename__, obj)
+        for obj in session._changes['delete']:
+            remove_from_index(cls.__tablename__, obj)
+        session._changes = None
+
+    @classmethod
+    def reindex(cls):
+        """Re-index all objects in the table"""
+
+        for obj in cls.query:
+            add_to_index(cls.__tablename__, obj)
+
+
+class Post(SearchMixin, db.Model):
     """A class for post data model"""
+
+    __searchable__ = ['body']
 
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
@@ -116,6 +167,11 @@ class Post(db.Model):
         """String representation for post objects"""
 
         return '<Post {}>'.format(self.body)
+
+
+# Register event handlers for before and after commits
+db.event.listen(db.session, 'before_commit', Post.before_commit)
+db.event.listen(db.session, 'after_commit', Post.after_commit)
 
 
 @login.user_loader

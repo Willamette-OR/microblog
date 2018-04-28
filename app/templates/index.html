@@ -2,7 +2,11 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block app_content %}
+    {% if search_results %}
+    <h1>Search Results:</h1>
+    {% else %}
     <h1>{{ _('Hello %(username)s!', username=user.username) }}</h1>
+    {% endif %}
     {% if form %}
     {{ wtf.quick_form(form) }}
     <br>

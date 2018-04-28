@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
+from elasticsearch import Elasticsearch
 
 
 from flask import Flask, request, current_app
@@ -51,6 +52,10 @@ def create_app(config_class=Config):
 
     from app.main import bp as bp_main
     app.register_blueprint(bp_main)
+
+    # Initialize an elastic search object for the app
+    app.elasticsearch = Elasticsearch(app.config['ELASTICSEARCH_URL']) \
+        if app.config['ELASTICSEARCH_URL'] else None
 
     # Logging
     if not app.debug:

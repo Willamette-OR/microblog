@@ -19,7 +19,7 @@
                      when=moment(post.timestamp).fromNow()) }} <br>
                 <span id="post{{ post.id }}">{{ post.body }}</span>
                 <br><br>
-                {% if post.language and post.language != g.locale %}
+                {% if post.language and post.language not in [g.locale, 'la'] %}
                 <span id="translate{{ post.id }}">
                     <a href="javascript:translate(
                                 '#post{{ post.id }}',

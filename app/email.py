@@ -18,7 +18,7 @@ def send_password_reset_email(user, recipients, sender):
 def send_mail(recipients, sender, html_body):
     """Send mail using flask mail object's send method"""
 
-    msg = Message(subject='Microblog: Reset Your Password',
+    msg = Message(subject='OurChatRoom: Reset Your Password',
                   recipients=recipients, sender=sender)
     msg.html = html_body
     Thread(target=send_async_send, args=(current_app._get_current_object(),

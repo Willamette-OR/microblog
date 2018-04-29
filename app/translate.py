@@ -17,5 +17,8 @@ def translation(text, source_lang, dest_lang):
                      format(text, source_lang, dest_lang), headers=auth)
     if r.status_code != 200:
         return 'Oops, the translation service failed.'
+    elif 'ArgumentOutOfRangeException' in json.loads(
+            r.content.decode('utf-8-sig')):
+        return 'Oops, unable to detect post language.'
 
     return json.loads(r.content.decode('utf-8-sig'))

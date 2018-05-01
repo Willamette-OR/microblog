@@ -72,7 +72,7 @@ def request_password_reset():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user, recipients=[user.email],
-                                      sender=current_app.config['ADMINS'][0])
+                                      sender=current_app.config['NOREPLY'])
         flash('Please check your email for a link to reset your password!')
         return redirect(url_for('auth.login'))
 

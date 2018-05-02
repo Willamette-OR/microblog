@@ -57,6 +57,10 @@ def create_app(config_class=Config):
     app.elasticsearch = Elasticsearch(app.config['ELASTICSEARCH_URL']) \
         if app.config['ELASTICSEARCH_URL'] else None
 
+    # Create an upload folder if not existed
+    if not os.path.exists(app.config['UPLOADS_URL']):
+        os.mkdir(app.config['UPLOADS_URL'])
+
     # Logging
     if not app.debug:
 

@@ -30,3 +30,5 @@ class Config(object):
     MS_TRANSLATION_KEY = os.environ.get('MS_TRANSLATION_KEY')
 
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+
+    UPLOADS_URL = os.path.join(base_dir, 'uploads')

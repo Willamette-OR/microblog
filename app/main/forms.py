@@ -1,8 +1,10 @@
 from flask import request
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, ValidationError
 from flask_babel import lazy_gettext as _l
+from flask_uploads import UploadSet, IMAGES
 
 
 from app.models import User
@@ -30,6 +32,15 @@ class EditProfileForm(FlaskForm):
             user = User.query.filter_by(username=username.data).first()
             if user:
                 raise ValidationError('Please use a different username.')
+
+
+class PhotoForm(FlaskForm):
+    """A class for uploading images"""
+
+    upload = FileField('', validators=[
+        FileRequired(), FileAllowed(UploadSet(extensions=IMAGES).extensions,
+                                    'Image file only!')])
+    submit = SubmitField('Upload')
 
 
 class PostForm(FlaskForm):

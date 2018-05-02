@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <h1>Upload Profile Picture</h1>
+    <p>{{ wtf.quick_form(form) }}</p>
+{% endblock %}

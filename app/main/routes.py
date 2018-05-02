@@ -1,16 +1,18 @@
 from datetime import datetime
 from guess_language import guess_language
+import os
 from flask import render_template, redirect, url_for, flash, request, g, \
     jsonify, current_app
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
+from werkzeug.utils import secure_filename
 
 
 from app import db
 from app.models import User, Post
 from app.translate import translation
 from app.main import bp
-from app.main.forms import EditProfileForm, PostForm, SearchForm
+from app.main.forms import EditProfileForm, PostForm, SearchForm, PhotoForm
 
 
 @bp.route('/', methods=['GET', 'POST'])
@@ -105,6 +107,22 @@ def edit_profile():
         form.about_me.data = current_user.about_me
 
     return render_template('edit_profile.html', form=form, title='Edit Profile')
+
+
+@bp.route('/upload_profile_pic', methods=['GET', 'POST'])
+@login_required
+def upload_profile_pic():
+    """View function to upload profile pictures"""
+
+    form = PhotoForm()
+    if form.validate_on_submit():
+        file = form.upload.data
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(current_app.config['UPLOADS_URL'], filename))
+        flash('Your profile photo has been updated!')
+        return redirect(url_for('main.user_profile',
+                                username=current_user.username))
+    return render_template('photo_upload.html', form=form)
 
 
 @bp.route('/follow/<username>')

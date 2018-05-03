@@ -3,7 +3,8 @@ from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
 import jwt
-from flask import current_app
+import os
+from flask import current_app, url_for, send_from_directory
 from flask_login import UserMixin
 
 
@@ -28,6 +29,7 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(256))
     last_seen = db.Column(db.DateTime, default=None)
+    photo_name = db.Column(db.String(120), default=None)
     followed = db.relationship('User', secondary=follower,
                                primaryjoin=(id == follower.c.followers_id),
                                secondaryjoin=(id == follower.c.followed_id),
@@ -55,6 +57,16 @@ class User(UserMixin, db.Model):
         hex_d = md5(self.email.lower().encode('utf-8')).hexdigest()
         return 'https://www.gravatar.com/avatar/{0}?d=mm&s={1}'.format(hex_d,
                                                                        size)
+
+    def uploaded_photo(self):
+        """Return the uploaded photo"""
+
+        if not self.photo_name:
+            return
+
+        # Pass a datetime query string to force browser to load new image
+        return url_for('main.profile_photos', filename=self.photo_name,
+                       timestamp=datetime.utcnow())
 
     def is_following(self, user):
         """Tell if self is following a given user"""

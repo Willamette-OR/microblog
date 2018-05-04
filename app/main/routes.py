@@ -1,16 +1,19 @@
 from datetime import datetime
 from guess_language import guess_language
+import os
 from flask import render_template, redirect, url_for, flash, request, g, \
-    jsonify, current_app
+    jsonify, current_app, send_from_directory
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
+from werkzeug.utils import secure_filename
 
 
 from app import db
 from app.models import User, Post
 from app.translate import translation
 from app.main import bp
-from app.main.forms import EditProfileForm, PostForm, SearchForm
+from app.main.forms import EditProfileForm, PostForm, SearchForm, PhotoForm
+from app.uploads import filename_hash
 
 
 @bp.route('/', methods=['GET', 'POST'])
@@ -105,6 +108,35 @@ def edit_profile():
         form.about_me.data = current_user.about_me
 
     return render_template('edit_profile.html', form=form, title='Edit Profile')
+
+
+@bp.route('/upload_profile_pic', methods=['GET', 'POST'])
+@login_required
+def upload_profile_pic():
+    """View function to upload profile pictures"""
+
+    form = PhotoForm()
+    # TODO - refresh the image on the client side only when uploading new images
+    if form.validate_on_submit():
+        file = form.upload.data
+        filename = filename_hash(secure_filename(file.filename),
+                                 current_user.email)
+        file.save(os.path.join(current_app.config['UPLOADS_URL'], filename))
+        current_user.photo_name = filename
+        current_user.photo_mod_time = datetime.utcnow()
+        db.session.commit()
+        flash('Your profile photo has been updated!')
+        return redirect(url_for('main.user_profile',
+                                username=current_user.username))
+    return render_template('photo_upload.html', form=form)
+
+
+@bp.route('/profile_photos/<filename>')
+@login_required
+def profile_photos(filename):
+    """View function to serve uploaded profile photos"""
+
+    return send_from_directory(current_app.config['UPLOADS_URL'], filename)
 
 
 @bp.route('/follow/<username>')

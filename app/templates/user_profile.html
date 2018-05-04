@@ -3,8 +3,9 @@
 {% block app_content %}
     <table class="table table-hover">
         <tr>
-            <td width="192px">
-                <img src="{{ user.avatar(192) }}">
+            <td width="256px">
+                <img src="{{ user.uploaded_photo() or user.avatar(256) }}"
+                     width="256" height="256">
             </td>
             <td>
                 <h1>User: {{ user.username }}</h1>
@@ -30,9 +31,8 @@
                     </a>
                 </p>
                 <p>
-                    Want a better profile picture?
-                    <a href="https://wordpress.com/log-in?redirect_to=https%3A%2F%2Fpublic-api.wordpress.com%2Foauth2%2Fauthorize%2F%3Fclient_id%3D1854%26response_type%3Dcode%26blog_id%3D0%26state%3Db1d8e1c71d715c437bd1189ab527850dabd4ea612913177fc2fbeeac356e9e71%26redirect_uri%3Dhttps%253A%252F%252Fen.gravatar.com%252Fconnect%252F%253Faction%253Drequest_access_token%26jetpack-code%26jetpack-user-id%3D0%26action%3Doauth2-login&client_id=1854">
-                        Edit it at Gravatar!
+                    <a href="{{ url_for('main.upload_profile_pic') }}">
+                        Update Profile Photo
                     </a>
                 </p>
                 {% else%}

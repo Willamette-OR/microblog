@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(256))
     last_seen = db.Column(db.DateTime, default=None)
     photo_name = db.Column(db.String(120), default=None)
+    photo_mod_time = db.Column(db.DateTime, default=None)
     followed = db.relationship('User', secondary=follower,
                                primaryjoin=(id == follower.c.followers_id),
                                secondaryjoin=(id == follower.c.followed_id),
@@ -64,9 +65,11 @@ class User(UserMixin, db.Model):
         if not self.photo_name:
             return
 
-        # Pass a datetime query string to force browser to load new image
-        return url_for('main.profile_photos', filename=self.photo_name,
-                       timestamp=datetime.utcnow())
+        if self.photo_mod_time:
+            modtime = self.photo_mod_time.strftime('%Y-%m-%d-%H-%M-%S')
+            return url_for('main.profile_photos', filename=self.photo_name,
+                           modtime=modtime)
+        return url_for('main.profile_photos', filename=self.photo_name)
 
     def is_following(self, user):
         """Tell if self is following a given user"""

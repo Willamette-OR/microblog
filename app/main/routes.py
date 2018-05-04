@@ -123,6 +123,7 @@ def upload_profile_pic():
                                  current_user.email)
         file.save(os.path.join(current_app.config['UPLOADS_URL'], filename))
         current_user.photo_name = filename
+        current_user.photo_mod_time = datetime.utcnow()
         db.session.commit()
         flash('Your profile photo has been updated!')
         return redirect(url_for('main.user_profile',
